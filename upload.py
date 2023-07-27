@@ -1,0 +1,107 @@
+
+#基本情報
+
+CSS_BASE_PRICE = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.priceWrap > div.basePrice > p.basePrice__price')
+CSS_TOTAL_PRICE = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.priceWrap > div.totalPrice > p.totalPrice__price')
+CSS_MODEL_YEAR = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(1) > p.specWrap__box__num')
+CSS_DISTANCE = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(2) > p.specWrap__box__num')
+CSS_INSPECTION = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(3)')
+CSS_REPAIR = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(4) > p:nth-child(2)')
+
+#状態
+#CSS_CAR_INFO = 'body > div.page > div:nth-child(6) > main > section > h2 > span'
+#CSS_DRIVE = 'body > div.page > div:nth-child(8) > div > div.column__main > section:nth-child(5) > div > table > tbody > tr:nth-child(1) > td:nth-child(4)'
+CSS_RECYCLE = soup.select('body > div.page > div:nth-child(8) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(6) > td:nth-child(2)')
+CSS_ONE_OWNER = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(1) > td:nth-child(4)')
+CSS_RECORD_BOOK = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(4) > td:nth-child(2)')
+CSS_NEW_CAR = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(4) > td:nth-child(4)')
+CSS_NO_SMOKE = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(5) > td:nth-child(2)')
+CSS_REGION = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(5) > p:nth-child(2)')
+CSS_REGISTERED = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(6) > td:nth-child(4)')
+CSS_LEGAL_IMPORTED = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(5) > td:nth-child(4)')
+CSS_DEMO_CAR = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(7) > td:nth-child(2)')
+CSS_RENTAL_CAR = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(7) > td:nth-child(4)')
+CSS_ECO_CAR = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(8) > td')
+CSS_LEGAL_MAINTENANCE = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(10) > td > p')
+CSS_WARRANTY = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(11) > td > p')
+CSS_CAMPING = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(2) > td:nth-child(4)')
+CSS_WELFARE = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(4)')
+
+#品質評価
+CSS_POINT = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(4) > div > div.evaluationWrap--large > div > div:nth-child(2) > p')
+
+#基本スペック
+CSS_BODY_TYPE = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(1) > td:nth-child(2)')
+CSS_DRIVE_TYPE = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(1) > td:nth-child(4)')
+CSS_COLOR = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(2) > td:nth-child(2)')
+CSS_HANDLE = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(2) > td:nth-child(4)')
+CSS_TRANSMISSION = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(3) > td:nth-child(4)')
+CSS_DISPLACEMENT = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(4) > td:nth-child(2)')
+CSS_MEMBER = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(4) > td:nth-child(4)')
+CSS_ENGINE_TYPE = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(5) > td:nth-child(2)')
+CSS_DOOR_NUMBER = soup.select('body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(5) > td:nth-child(4)')
+
+#装備仕様
+#安全装備
+CSS_POWER_STEERING = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(1)')
+CSS_ABS = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(2)')
+CSS_SAFETY_SUPPORT = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(3)')
+CSS_AUTO_BRAKE = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(4)')
+CSS_ADAPTIVE_CRUISE = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(5)')
+CSS_LANE_KEEP = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(6)')
+CSS_PARK_ASSIST = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(7)')
+CSS_ACCELERATOR_SAFE = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(8)')
+CSS_OBSTACLE_SENSOR = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(9)')
+CSS_AIR_BAG = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(10)')
+CSS_NECK_REST = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(11)')
+CSS_360_CAMERA = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(12)')
+CSS_CAMERA = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(13)')
+CSS_MONITOR = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(14)')
+CSS_ESP = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(15)')
+CSS_HILL_DESCENT = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(16)')
+CSS_IDLE_STOP = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(17)')
+CSS_ANTI_THEFT = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(18)')
+CSS_AUTO_HIGHBEAM = soup.select('#equipmentList > div:nth-child(1) > ul > li:nth-child(19)')
+
+#快適装備
+CSS_TURBO = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(1)')
+CSS_AC_COOL = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(2)')
+CSS_DOUBLE_AC = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(3)')
+CSS_NAVI = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(4)')
+CSS_TV = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(5)')
+CSS_VID_PLAYER = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(6)')
+CSS_AUDIO_PLAYER = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(7)')
+CSS_MUSIC_PLAYER = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(8)')
+CSS_ETC = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(9)')
+CSS_AIR_SUS = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(10)')
+CSS_1500W = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(11)')
+CSS_DRIVE_REC = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(12)')
+CSS_DISP_AUDIO = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(13)')
+CSS_COLD_REGION = soup.select('#equipmentList > div:nth-child(2) > ul > li:nth-child(14)')
+
+#インテリア
+CSS_KEYLESS = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(1)')
+CSS_SMART_KEY = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(2)')
+CSS_POWER_WINDOW = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(3)')
+CSS_BACKSEAT_MONITOR = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(4)')
+CSS_BENCH_SEAT = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(5)')
+CSS_3RD_ROW = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(6)')
+CSS_WALK_THROUGH = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(7)')
+CSS_POWER_SEAT = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(8)')
+CSS_SEAT_AC = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(9)')
+CSS_SEAT_HEATER = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(10)')
+CSS_FULLFLAT_SEAT = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(11)')
+CSS_OTTOMAN = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(12)')
+CSS_LEATHER_SEAT = soup.select('#equipmentList > div:nth-child(3) > ul > li:nth-child(13)')
+
+#エクステリア
+CSS_HEADLIGHT = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(1)')
+CSS_FRONT_FOG = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(2)')
+CSS_SUNROOF = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(3)')
+CSS_ROOF_RAIL = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(4)')
+CSS_FULL_AERO = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(5)')
+CSS_ALUMI_WHEEL = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(6)')
+CSS_LOW_DOWN = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(7)')
+CSS_LIFT_UP = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(8)')
+CSS_SLIDE_DOOR = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(9)')
+CSS_ALL_PAINT = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(10)')
