@@ -4,13 +4,13 @@ import re
 import csv
 
 
-url = 'https://www.carsensor.net/usedcar/detail/AU2832583163/index.html?TRCD=200002&RESTID=CS210610&LOAN=ZNK'
+url = 'https://www.carsensor.net/usedcar/detail/AU2824985603/index.html?TRCD=200002&RESTID=CS210610&LOAN=TSUJO'
 response = requests.get(url)
 html_content = response.content.decode('utf-8')
 
 soup = BeautifulSoup(html_content, 'html.parser')
 
-CSS_CHECK = soup.select('body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(4) > p:nth-child(2)')
+CSS_CHECK = soup.select('#equipmentList > div:nth-child(4) > ul > li:nth-child(1)')
 print(CSS_CHECK)
 # 一覧ページのページ数を取得するCSS selector
 '''

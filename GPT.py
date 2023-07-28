@@ -6,8 +6,9 @@ import csv
 import os
 import datetime
 
-#YOUR_URL = 'https://www.carsensor.net/usedcar/search.php?CARC=BM_S011'
+# YOUR_URL = 'https://www.carsensor.net/usedcar/search.php?CARC=BM_S011'
 YOUR_URL = 'https://www.carsensor.net/usedcar/index.html?STID=CS210610&AR=&BRDC=&CARC=BM_S011&NINTEI=&CSHOSHO='
+
 
 def get_html(url):
     response = requests.get(url)
@@ -138,6 +139,57 @@ def extract_data(soup, url):
                 point_text = element.text.strip()
                 point_number = re.search(r'\d+(\.\d+)?', point_text)
                 data[key] = point_number.group() if point_number else '0'
+            elif key == 'right_handle':
+                if element.text == '右':
+                    data[key] = '1'
+                elif element.text == '左':
+                    data[key] = '0'
+                else:
+                    data[key] = None
+            elif key == 'displacement':
+                data[key] = element.text.replace('cc', '')
+            elif key == 'member':
+                data[key] = element.text.replace('名', '')
+            elif key == 'engine_type_gasoline':
+                if element.text == 'ディーゼル':
+                    data[key] = '0'
+                elif element.text == 'ガソリン':
+                    data[key] = '1'
+                else:
+                    data[key] = None
+            elif key in ['power_steering', 'abs', 'safety_support', 'auto_brake', 'adaptive_cruise', 'lane_keep',
+                         'park_assist', 'accelerator_safe', 'obstacle_sensor', 'neck_rest', '360_camera',
+                         'esp', 'hill_descent', 'idle_stop', 'anti_theft', 'auto_high_beam', 'turbo', 'ac_cool',
+                         'double_ac', 'navi', 'tv', 'music_player_plugin', 'etc', 'air_sus', '1500w', 'drive_rec',
+                         'disp_audio', 'cold_region', 'keyless', 'smart_key', 'power_window', 'backseat_monitor',
+                         'bench_seat', '3rd_row', 'walk_through', 'power_seat', 'seat_ac', 'seat_heater',
+                         'fullflat_seat', 'ottoman', 'leather_seat', 'front_fog', 'sunroof', 'roof_rail', 'full_aero',
+                         'alumi_wheel', 'low_down', 'lift_up', 'slide_door', 'all_paint']:
+                if element.has_attr('class') and 'equipmentList__item--active' in element['class']:
+                    data[key] = '1'
+                else:
+                    data[key] = '0'
+            elif key in ['air_bag', 'camera', 'monitor', 'audio_player', 'vid_player']:
+                if element.has_attr('class') and 'equipmentList__item--active' in element['class']:
+                    item_types = element.text.split('：')[1].split('/')
+                    for item_type in item_types:
+                        if item_type != '－':
+                            data[key + '_' + item_type] = '1'
+                    # Set the rest fields to '0'
+                    for field in SUBFIELDS[key]:
+                        full_key = key + '_' + field
+                        if full_key not in data:
+                            data[full_key] = '0'
+                else:
+                    for field in SUBFIELDS[key]:
+                        data[key + '_' + field] = '0'
+            elif key == 'halogen_headlight':
+                if element.has_attr('class') and 'equipmentList__item--active' in element['class']:
+                    data[key] = '1'
+                    data['headlight_type'] = element.text.split('：')[1]
+                else:
+                    data[key] = '0'
+                    data['headlight_type'] = 'Halogen'
             else:
                 data[key] = element.text
         else:
@@ -150,7 +202,7 @@ def extract_data(soup, url):
 
 
 CSS_SELECTORS = {
-    #基本情報
+    # 基本情報
     'car_name': 'body > div.page > div:nth-child(5) > main > section > h2 > span',
     'base_price': 'body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.priceWrap > div.basePrice > p.basePrice__price',
     'total_price': 'body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.priceWrap > div.totalPrice > p.totalPrice__price',
@@ -158,7 +210,7 @@ CSS_SELECTORS = {
     'distance': 'body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(2) > p.specWrap__box__num',
     'inspection_remaining_month': 'body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(3)',
     'repair': 'body > div.page > div:nth-child(5) > main > section > div > div.column__sub > div.specWrap > div:nth-child(4) > p:nth-child(2)',
-    #状態
+    # 状態
     'recycle': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(6) > td:nth-child(2)',
     'one_owner': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(1) > td:nth-child(4)',
     'record_book': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(4) > td:nth-child(2)',
@@ -174,10 +226,102 @@ CSS_SELECTORS = {
     'guarantee': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(11) > td > p',
     'camping': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(2) > td:nth-child(4)',
     'welfare': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(2) > div > table > tbody > tr:nth-child(3) > td:nth-child(4)',
-    #品質評価
+    # 品質評価
     'point': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(4) > div > div.evaluationWrap--large > div > div:nth-child(2) > p',
-    #基本スペック
+    # 基本スペック
     'body_type': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(1) > td:nth-child(2)',
+    'drive_type': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(1) > td:nth-child(4)',
+    'color': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(2) > td:nth-child(2)',
+    'right_handle': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(2) > td:nth-child(4)',
+    'transmission': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(3) > td:nth-child(4)',
+    'displacement': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(4) > td:nth-child(2)',
+    'member': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(4) > td:nth-child(4)',
+    'engine_type_gasoline': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(5) > td:nth-child(2)',
+    'door_number': 'body > div.page > div:nth-child(7) > div > div.column__main > section:nth-child(6) > div > table > tbody > tr:nth-child(5) > td:nth-child(4)',
+    # 装備仕様
+    # 安全装備
+    'power_steering': '#equipmentList > div:nth-child(1) > ul > li:nth-child(1)',
+    'abs': '#equipmentList > div:nth-child(1) > ul > li:nth-child(2)',
+    'safety_support': '#equipmentList > div:nth-child(1) > ul > li:nth-child(3)',
+    'auto_brake': '#equipmentList > div:nth-child(1) > ul > li:nth-child(4)',
+    'adaptive_cruise': '#equipmentList > div:nth-child(1) > ul > li:nth-child(5)',
+    'lane_keep': '#equipmentList > div:nth-child(1) > ul > li:nth-child(6)',
+    'park_assist': '#equipmentList > div:nth-child(1) > ul > li:nth-child(7)',
+    'accelerator_safe': '#equipmentList > div:nth-child(1) > ul > li:nth-child(8)',
+    'obstacle_sensor': '#equipmentList > div:nth-child(1) > ul > li:nth-child(9)',
+    'air_bag': '#equipmentList > div:nth-child(1) > ul > li:nth-child(10)',
+    'air_bag_運転席': None,  # these keys will be handled in the 'air_bag' key
+    'air_bag_助手席': None,
+    'air_bag_サイド': None,
+    'air_bag_カーテン': None,
+    'neck_rest': '#equipmentList > div:nth-child(1) > ul > li:nth-child(11)',
+    '360_camera': '#equipmentList > div:nth-child(1) > ul > li:nth-child(12)',
+    'camera': '#equipmentList > div:nth-child(1) > ul > li:nth-child(13)',
+    'camera_フロント': None,
+    'camera_サイド': None,
+    'camera_バック': None,
+    'monitor': '#equipmentList > div:nth-child(1) > ul > li:nth-child(14)',
+    'monitor_ブラインドスポット': None,
+    'monitor_リアトラフィック': None,
+    'esp': '#equipmentList > div:nth-child(1) > ul > li:nth-child(15)',
+    'hill_descent': '#equipmentList > div:nth-child(1) > ul > li:nth-child(16)',
+    'idle_stop': '#equipmentList > div:nth-child(1) > ul > li:nth-child(17)',
+    'anti_theft': '#equipmentList > div:nth-child(1) > ul > li:nth-child(18)',
+    'auto_high_beam': '#equipmentList > div:nth-child(1) > ul > li:nth-child(19)',
+    # 快適装備
+    'turbo': '#equipmentList > div:nth-child(2) > ul > li:nth-child(1)',
+    'ac_cool': '#equipmentList > div:nth-child(2) > ul > li:nth-child(2)',
+    'double_ac': '#equipmentList > div:nth-child(2) > ul > li:nth-child(3)',
+    'navi': '#equipmentList > div:nth-child(2) > ul > li:nth-child(4)',
+    'tv': '#equipmentList > div:nth-child(2) > ul > li:nth-child(5)',
+    'vid_player': '#equipmentList > div:nth-child(2) > ul > li:nth-child(6)',
+    'vid_player_DVD': None,
+    'vid_player_ブルーレイ': None,
+    'audio_player': '#equipmentList > div:nth-child(2) > ul > li:nth-child(7)',
+    'audio_player_CD': None,
+    'audio_player_MD': None,
+    'audio_player_ミュージックサーバー': None,
+    'music_player_plugin': '#equipmentList > div:nth-child(2) > ul > li:nth-child(8)',
+    'etc': '#equipmentList > div:nth-child(2) > ul > li:nth-child(9)',
+    'air_sus': '#equipmentList > div:nth-child(2) > ul > li:nth-child(10)',
+    '1500w': '#equipmentList > div:nth-child(2) > ul > li:nth-child(11)',
+    'drive_rec': '#equipmentList > div:nth-child(2) > ul > li:nth-child(12)',
+    'disp_audio': '#equipmentList > div:nth-child(2) > ul > li:nth-child(13)',
+    'cold_region': '#equipmentList > div:nth-child(2) > ul > li:nth-child(14)',
+    # インテリア
+    'keyless': '#equipmentList > div:nth-child(3) > ul > li:nth-child(1)',
+    'smart_key': '#equipmentList > div:nth-child(3) > ul > li:nth-child(2)',
+    'power_window': '#equipmentList > div:nth-child(3) > ul > li:nth-child(3)',
+    'backseat_monitor': '#equipmentList > div:nth-child(3) > ul > li:nth-child(4)',
+    'bench_seat': '#equipmentList > div:nth-child(3) > ul > li:nth-child(5)',
+    '3rd_row': '#equipmentList > div:nth-child(3) > ul > li:nth-child(6)',
+    'walk_through': '#equipmentList > div:nth-child(3) > ul > li:nth-child(7)',
+    'power_seat': '#equipmentList > div:nth-child(3) > ul > li:nth-child(8)',
+    'seat_ac': '#equipmentList > div:nth-child(3) > ul > li:nth-child(9)',
+    'seat_heater': '#equipmentList > div:nth-child(3) > ul > li:nth-child(10)',
+    'fullflat_seat': '#equipmentList > div:nth-child(3) > ul > li:nth-child(11)',
+    'ottoman': '#equipmentList > div:nth-child(3) > ul > li:nth-child(12)',
+    'leather_seat': '#equipmentList > div:nth-child(3) > ul > li:nth-child(13)',
+    # エクステリア
+    'halogen_headlight': '#equipmentList > div:nth-child(4) > ul > li:nth-child(1)',
+    'headlight_type': None,
+    'front_fog': '#equipmentList > div:nth-child(4) > ul > li:nth-child(2)',
+    'sunroof': '#equipmentList > div:nth-child(4) > ul > li:nth-child(3)',
+    'roof_rail': '#equipmentList > div:nth-child(4) > ul > li:nth-child(4)',
+    'full_aero': '#equipmentList > div:nth-child(4) > ul > li:nth-child(5)',
+    'alumi_wheel': '#equipmentList > div:nth-child(4) > ul > li:nth-child(6)',
+    'low_down': '#equipmentList > div:nth-child(4) > ul > li:nth-child(7)',
+    'lift_up': '#equipmentList > div:nth-child(4) > ul > li:nth-child(8)',
+    'slide_door': '#equipmentList > div:nth-child(4) > ul > li:nth-child(9)',
+    'all_paint': '#equipmentList > div:nth-child(4) > ul > li:nth-child(10)',
+}
+
+SUBFIELDS = {
+    'air_bag': ['運転席', '助手席', 'サイド', 'カーテン'],
+    'camera': ['フロント', 'サイド', 'バック'],
+    'monitor': ['ブラインドスポット', 'リアトラフィック'],
+    'audio_player': ['CD', 'MD', 'ミュージックサーバー'],
+    'vid_player': ['DVD', 'ブルーレイ']
 }
 
 
@@ -216,7 +360,7 @@ def main():
             html = get_html(url)
             soup = parse_html(html)  # 更新 soup 对象以指向新的搜索结果页
 
-        time.sleep(0.25)
+        # time.sleep(0.25)
 
 
 if __name__ == '__main__':
