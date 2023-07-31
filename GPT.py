@@ -6,8 +6,8 @@ import csv
 import os
 import datetime
 
-# YOUR_URL = 'https://www.carsensor.net/usedcar/search.php?CARC=BM_S011'
-YOUR_URL = 'https://www.carsensor.net/usedcar/index.html?STID=CS210610&AR=&BRDC=&CARC=BM_S011&NINTEI=&CSHOSHO='
+YOUR_URL = 'https://www.carsensor.net/usedcar/search.php?CARC=BM_S011'
+#YOUR_URL = 'https://www.carsensor.net/usedcar/index.html?STID=CS210610&AR=&BRDC=&CARC=BM_S011&NINTEI=&CSHOSHO='
 
 
 def get_html(url):
@@ -54,10 +54,21 @@ def get_detail_page_urls(soup):
 
 def extract_data(soup, url):
     data = {}
+    # List of selectors that need special handling
+    special_handling_keys = ['body_type', 'drive_type', 'color', 'right_handle', 'transmission', 'displacement',
+                             'member', 'engine_type_gasoline', 'door_number']
+
     for key, selector in CSS_SELECTORS.items():
         if selector is None:
             continue
+
         element = soup.select_one(selector)
+
+        # If the main selector didn't match and the key requires special handling, try the alternate selector
+        if element is None and key in special_handling_keys and 'section:nth-child(6)' in selector:
+            alternate_selector = selector.replace('section:nth-child(6)', 'section:nth-child(5)')
+            element = soup.select_one(alternate_selector)
+
         if element:
             if key == 'base_price':
                 data[key] = element.get('content').replace(",", "")  # remove comma from the number
@@ -83,10 +94,11 @@ def extract_data(soup, url):
                         data[key] = "0"
                     elif len(inspection_elements) >= 3:
                         year_month_text = inspection_elements[1].text + inspection_elements[2].text
-                        if re.match(r'\d{4}\(R\d{2}\)年\d{1,2}月', year_month_text):
-                            # Extract the year and month from the text
-                            year = int(year_month_text[:4])
-                            month = int(year_month_text[-2:].replace('月', ''))
+                        # Use a regular expression to extract the year and month
+                        match = re.match(r'(\d{4})\(R\d{2}\)年(\d{1,2})月', year_month_text)
+                        if match:
+                            year = int(match.group(1))
+                            month = int(match.group(2))
                             # Calculate the difference in months
                             now = datetime.datetime.now()
                             diff = (year - now.year) * 12 + month - now.month
@@ -155,8 +167,10 @@ def extract_data(soup, url):
                     data[key] = '0'
                 elif element.text == 'ガソリン':
                     data[key] = '1'
+                elif element.text == 'ハイブリッド':
+                    data[key] = '2'
                 else:
-                    data[key] = None
+                    data[key] = element.text
             elif key in ['power_steering', 'abs', 'safety_support', 'auto_brake', 'adaptive_cruise', 'lane_keep',
                          'park_assist', 'accelerator_safe', 'obstacle_sensor', 'neck_rest', '360_camera',
                          'esp', 'hill_descent', 'idle_stop', 'anti_theft', 'auto_high_beam', 'turbo', 'ac_cool',
