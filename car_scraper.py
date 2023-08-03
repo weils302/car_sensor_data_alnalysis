@@ -1,4 +1,3 @@
-import time
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -7,8 +6,6 @@ import os
 import datetime
 
 YOUR_URL = 'https://www.carsensor.net/usedcar/search.php?CARC=BM_S011'
-#YOUR_URL = 'https://www.carsensor.net/usedcar/index.html?STID=CS210610&AR=&BRDC=&CARC=BM_S011&NINTEI=&CSHOSHO='
-
 
 def get_html(url):
     response = requests.get(url)
@@ -62,12 +59,19 @@ def extract_data(soup, url):
         if selector is None:
             continue
 
-        element = soup.select_one(selector)
+        element = None
 
-        # If the main selector didn't match and the key requires special handling, try the alternate selector
-        if element is None and key in special_handling_keys and 'section:nth-child(6)' in selector:
-            alternate_selector = selector.replace('section:nth-child(6)', 'section:nth-child(5)')
-            element = soup.select_one(alternate_selector)
+        # If the key requires special handling, try multiple selectors
+        if key in special_handling_keys and 'section:nth-child(6)' in selector:
+            for i in range(6, 3, -1):
+                alternate_selector = selector.replace('section:nth-child(6)', f'section:nth-child({i})')
+                element = soup.select_one(alternate_selector)
+                if element:
+                    break
+
+        # If no special handling, just use the main selector
+        if element is None:
+            element = soup.select_one(selector)
 
         if element:
             if key == 'base_price':
@@ -215,6 +219,44 @@ def extract_data(soup, url):
     return data
 
 
+def save_data(data, filename):
+    fieldnames = [key for key in CSS_SELECTORS.keys() if key not in ['region', 'guarantee']]
+    fieldnames += ['Prefecture', 'City', 'guarantee_exists', 'guarantee_type', 'url']
+    file_exists = os.path.isfile(filename)
+    with open(filename, 'a', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()  # write header only once
+        writer.writerow(data)
+
+
+def main():
+    url = YOUR_URL
+    html = get_html(url)
+    soup = parse_html(html)
+    last_page_num = get_last_page_num(soup)
+    detail_page_counter = 0  # Initialize the counter
+
+    for page_num in range(1, last_page_num + 1):
+        detail_page_urls = get_detail_page_urls(soup)
+        while detail_page_urls:  # 如果还有更多的详情页
+            detail_page_url = detail_page_urls.pop(0)  # 取出第一个详情页的 URL
+            html = get_html(detail_page_url)
+            detail_soup = parse_html(html)  # 创建一个新的 BeautifulSoup 对象来处理详情页
+            data = extract_data(detail_soup, detail_page_url)
+            save_data(data, 'data.csv')
+            detail_page_counter += 1
+            print(f'Scraped {detail_page_counter} detail pages: {detail_page_url}')  # Print the counter and the URL
+
+        url = get_next_page_url(soup, page_num)
+        print(url)
+        if url is not None:
+            html = get_html(url)
+            soup = parse_html(html)  # 更新 soup 对象以指向新的搜索结果页
+
+        # time.sleep(0.25)
+
+
 CSS_SELECTORS = {
     # 基本情報
     'car_name': 'body > div.page > div:nth-child(5) > main > section > h2 > span',
@@ -337,44 +379,6 @@ SUBFIELDS = {
     'audio_player': ['CD', 'MD', 'ミュージックサーバー'],
     'vid_player': ['DVD', 'ブルーレイ']
 }
-
-
-def save_data(data, filename):
-    fieldnames = [key for key in CSS_SELECTORS.keys() if key not in ['region', 'guarantee']]
-    fieldnames += ['Prefecture', 'City', 'guarantee_exists', 'guarantee_type', 'url']
-    file_exists = os.path.isfile(filename)
-    with open(filename, 'a', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        if not file_exists:
-            writer.writeheader()  # write header only once
-        writer.writerow(data)
-
-
-def main():
-    url = YOUR_URL
-    html = get_html(url)
-    soup = parse_html(html)
-    last_page_num = get_last_page_num(soup)
-    detail_page_counter = 0  # Initialize the counter
-
-    for page_num in range(1, last_page_num + 1):
-        detail_page_urls = get_detail_page_urls(soup)
-        while detail_page_urls:  # 如果还有更多的详情页
-            detail_page_url = detail_page_urls.pop(0)  # 取出第一个详情页的 URL
-            html = get_html(detail_page_url)
-            detail_soup = parse_html(html)  # 创建一个新的 BeautifulSoup 对象来处理详情页
-            data = extract_data(detail_soup, detail_page_url)
-            save_data(data, 'data.csv')
-            detail_page_counter += 1
-            print(f'Scraped {detail_page_counter} detail pages: {detail_page_url}')  # Print the counter and the URL
-
-        url = get_next_page_url(soup, page_num)
-        print(url)
-        if url is not None:
-            html = get_html(url)
-            soup = parse_html(html)  # 更新 soup 对象以指向新的搜索结果页
-
-        # time.sleep(0.25)
 
 
 if __name__ == '__main__':
